@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pappa · Piano 4 giorni</title>
+  <meta name="description" content="Piano pasti familiare di 4 giorni con lista della spesa condivisibile.">
+  <style>
+    :root {
+      --bg: #faf8f2;
+      --paper: #fffdf7;
+      --ink: #25231f;
+      --muted: #676157;
+      --line: #ded7c8;
+      --green: #315c45;
+      --green-soft: #dce9dd;
+      --tomato: #b84c36;
+      --yellow: #f3c763;
+      --blue: #3d6f8f;
+      --shadow: 0 18px 45px rgba(54, 43, 26, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(243, 199, 99, 0.22), transparent 32rem),
+        linear-gradient(180deg, #fffaf0 0%, var(--bg) 46%, #f2efe6 100%);
+      letter-spacing: 0;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 48px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: 0 8px 20px rgba(54, 43, 26, 0.08);
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.1;
+    }
+
+    .brand span {
+      color: var(--muted);
+      display: block;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 8px;
+      min-height: 38px;
+      padding: 8px 12px;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(54, 43, 26, 0.06);
+    }
+
+    .btn.primary {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+      align-items: stretch;
+      min-height: 330px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 247, 0.72);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero h1 {
+      margin: 0;
+      max-width: 680px;
+      font-size: clamp(38px, 6vw, 76px);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 620px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.54);
+      min-height: 76px;
+    }
+
+    .pill b {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 3px;
+    }
+
+    .pill span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.25;
+    }
+
+    .plate {
+      min-height: 260px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(49, 92, 69, 0.16), rgba(184, 76, 54, 0.12)),
+        var(--green-soft);
+      border: 1px solid rgba(49, 92, 69, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plate::before {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: var(--paper);
+      box-shadow: inset 0 0 0 18px #f1eadb, 0 20px 42px rgba(49, 92, 69, 0.18);
+    }
+
+    .food {
+      position: relative;
+      width: 210px;
+      height: 210px;
+      border-radius: 50%;
+    }
+
+    .food span {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      box-shadow: 0 10px 18px rgba(54, 43, 26, 0.12);
+    }
+
+    .salmon {
+      width: 92px;
+      height: 60px;
+      left: 26px;
+      top: 46px;
+      background: #e77c60;
+      transform: rotate(-12deg);
+    }
+
+    .rice {
+      width: 76px;
+      height: 76px;
+      right: 24px;
+      top: 42px;
+      background: #fff5cf;
+    }
+
+    .greens {
+      width: 84px;
+      height: 84px;
+      left: 66px;
+      bottom: 28px;
+      background: #78a66f;
+    }
+
+    .tomato {
+      width: 44px;
+      height: 44px;
+      right: 50px;
+      bottom: 58px;
+      background: var(--tomato);
+    }
+
+    section {
+      margin-top: 28px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .days {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .day,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: 0 10px 24px rgba(54, 43, 26, 0.07);
+    }
+
+    .day {
+      overflow: hidden;
+    }
+
+    .day h3 {
+      margin: 0;
+      padding: 14px 14px 12px;
+      font-size: 18px;
+      background: #f2ebdc;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .slot {
+      padding: 14px;
+      border-bottom: 1px solid #eee7d9;
+    }
+
+    .slot:last-child {
+      border-bottom: 0;
+    }
+
+    .slot b {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 7px;
+      font-size: 14px;
+      color: var(--green);
+    }
+
+    .slot p {
+      margin: 0;
+      color: var(--ink);
+      line-height: 1.38;
+      font-size: 14px;
+    }
+
+    .baby {
+      margin-top: 9px;
+      padding: 8px;
+      border-radius: 8px;
+      background: #edf5ee;
+      color: #31523e;
+      font-size: 13px;
+      line-height: 1.32;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 0.7fr 1.3fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 16px;
+    }
+
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .checks {
+      display: grid;
+      gap: 8px;
+    }
+
+    label.check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      min-height: 34px;
+      padding: 7px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    label.check:hover {
+      background: #f5f0e6;
+    }
+
+    .check input {
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      accent-color: var(--green);
+      flex: 0 0 auto;
+    }
+
+    .check span {
+      line-height: 1.3;
+    }
+
+    .check input:checked + span {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .grocery {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .small-list {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      line-height: 1.4;
+      font-size: 14px;
+    }
+
+    footer {
+      margin-top: 32px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .grid-two {
+        grid-template-columns: 1fr;
+      }
+
+      .days,
+      .grocery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 20px, 1120px);
+        padding-top: 12px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .actions {
+        width: 100%;
+      }
+
+      .btn {
+        flex: 1;
+      }
+
+      .hero {
+        padding: 18px;
+        min-height: 0;
+      }
+
+      .hero h1 {
+        font-size: 42px;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      .summary,
+      .days,
+      .grocery {
+        grid-template-columns: 1fr;
+      }
+
+      .plate {
+        min-height: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <nav class="topbar" aria-label="Azioni">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">🍽️</div>
+        <div>
+          <strong>Pappa</strong>
+          <span>Piano pasti condiviso</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" type="button" data-reset>Reset spesa</button>
+        <button class="btn primary" type="button" data-print>Stampa / salva PDF</button>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <h1>4 giorni facili da cucinare.</h1>
+        <p>Snack, pranzi e cene pensati per una settimana reale: ingredienti che si ripetono, porzioni baby-friendly, e una lista della spesa che si può spuntare dal telefono.</p>
+        <div class="summary" aria-label="Riepilogo">
+          <div class="pill">
+            <b>4</b>
+            <span>giorni di idee semplici</span>
+          </div>
+          <div class="pill">
+            <b>1</b>
+            <span>spesa organizzata per categoria</span>
+          </div>
+          <div class="pill">
+            <b>0</b>
+            <span>ricette complicate</span>
+          </div>
+        </div>
+      </div>
+      <div class="plate" aria-label="Illustrazione di un piatto">
+        <div class="food" aria-hidden="true">
+          <span class="salmon"></span>
+          <span class="rice"></span>
+          <span class="greens"></span>
+          <span class="tomato"></span>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Prima decidiamo</h2>
+          <p>Piccole scelte per adattarlo a quello che vi va davvero.</p>
+        </div>
+      </div>
+      <div class="grid-two">
+        <div class="panel">
+          <h3>Regole rapide</h3>
+          <div class="small-list">
+            <span>🥣 Proteina + verdura/frutta + carbo facile.</span>
+            <span>🧂 Sale, salsa di soia, chilli e parmigiano solo sui piatti adulti.</span>
+            <span>👶 Per la bimba: pezzi morbidi, tagli sicuri, poco o niente sale.</span>
+            <span>💧 Porzioni tranquille, mangiare piano, acqua a portata.</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Decisioni</h3>
+          <div class="checks" data-scope="decisions">
+            <label class="check"><input type="checkbox"><span>Salmone o pollo per la traybake?</span></label>
+            <label class="check"><input type="checkbox"><span>Macinato di tacchino o pollo?</span></label>
+            <label class="check"><input type="checkbox"><span>Zuppa/stew da zero o backup pronto?</span></label>
+            <label class="check"><input type="checkbox"><span>Pranzi: wraps, rice bowls, o leftovers?</span></label>
+            <label class="check"><input type="checkbox"><span>Cose da togliere o scambiare?</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Piano 4 giorni</h2>
+          <p>Snack + pranzo + cena. Le cene sono facili da separare per adulti e bimba.</p>
+        </div>
+      </div>
+      <div class="days">
+        <article class="day">
+          <h3>Giorno 1</h3>
+          <div class="slot"><b>🥙 Pranzo</b><p>Wrap pollo o tonno, insalata, yogurt dressing o hummus.</p></div>
+          <div class="slot"><b>🍠 Cena</b><p>Salmone o pollo al forno, sweet potato, broccoli.</p><div class="baby">Baby: pezzi morbidi, broccoli ben cotti, niente sale.</div></div>
+          <div class="slot"><b>🍌 Snack</b><p>Yogurt greco + banana. Hummus + cucumber. Carote cotte se condivise.</p></div>
+        </article>
+
+        <article class="day">
+          <h3>Giorno 2</h3>
+          <div class="slot"><b>🍚 Pranzo</b><p>Leftover bowl: riso, pollo/salmone, verdure.</p></div>
+          <div class="slot"><b>🍝 Cena</b><p>Pasta con pomodoro, lenticchie e spinaci.</p><div class="baby">Baby: pasta ben cotta, salsa semplice, spinaci tritati.</div></div>
+          <div class="slot"><b>🥑 Snack</b><p>Avocado toast bits. Berries + yogurt. Rice cakes con cream cheese.</p></div>
+        </article>
+
+        <article class="day">
+          <h3>Giorno 3</h3>
+          <div class="slot"><b>🍲 Pranzo</b><p>Zuppa con pane, cottage cheese o uovo sodo a lato.</p></div>
+          <div class="slot"><b>🍅 Cena</b><p>Rice bowl con macinato tacchino/pollo, pomodoro, courgette e peas.</p><div class="baby">Baby: porzione plain, morbida, senza spicy sauce.</div></div>
+          <div class="slot"><b>🥞 Snack</b><p>Banana oat pancakes. Formaggio o cottage cheese. Banana.</p></div>
+        </article>
+
+        <article class="day">
+          <h3>Giorno 4</h3>
+          <div class="slot"><b>🥗 Pranzo</b><p>Pasta salad tonno/pollo, oppure leftover rice bowl.</p></div>
+          <div class="slot"><b>🥘 Cena</b><p>Stew di lenticchie, pollo e verdure, con pane.</p><div class="baby">Baby: texture densa, pezzi piccoli e morbidi, servire tiepido.</div></div>
+          <div class="slot"><b>🍎 Snack</b><p>Mela tagliata safe o ammorbidita, banana, rice cakes + cream cheese o hummus.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Lista della spesa</h2>
+          <p>Le spunte restano salvate su questo dispositivo.</p>
+        </div>
+      </div>
+      <div class="grocery" data-scope="grocery">
+        <div class="panel">
+          <h3>Proteine</h3>
+          <div class="checks">
+            <label class="check"><input type="checkbox"><span>Chicken breast o thighs</span></label>
+            <label class="check"><input type="checkbox"><span>Salmon fillets, oppure extra chicken</span></label>
+            <label class="check"><input type="checkbox"><span>Turkey o chicken mince</span></label>
+            <label class="check"><input type="checkbox"><span>Tuna tins</span></label>
+            <label class="check"><input type="checkbox"><span>Eggs</span></label>
+            <label class="check"><input type="checkbox"><span>Greek yogurt plain</span></label>
+            <label class="check"><input type="checkbox"><span>Cottage cheese</span></label>
+            <label class="check"><input type="checkbox"><span>Cream cheese</span></label>
+            <label class="check"><input type="checkbox"><span>Lentils</span></label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Carbs</h3>
+          <div class="checks">
+            <label class="check"><input type="checkbox"><span>Wraps</span></label>
+            <label class="check"><input type="checkbox"><span>Rice o microwave rice</span></label>
+            <label class="check"><input type="checkbox"><span>Sweet potatoes</span></label>
+            <label class="check"><input type="checkbox"><span>Pasta</span></label>
+            <label class="check"><input type="checkbox"><span>Bread</span></label>
+            <label class="check"><input type="checkbox"><span>Oats</span></label>
+            <label class="check"><input type="checkbox"><span>Rice cakes o crackers</span></label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Frutta e verdura</h3>
+          <div class="checks">
+            <label class="check"><input type="checkbox"><span>Salad bag</span></label>
+            <label class="check"><input type="checkbox"><span>Broccoli</span></label>
+            <label class="check"><input type="checkbox"><span>Spinach</span></label>
+            <label class="check"><input type="checkbox"><span>Courgette</span></label>
+            <label class="check"><input type="checkbox"><span>Peas</span></label>
+            <label class="check"><input type="checkbox"><span>Cucumber</span></label>
+            <label class="check"><input type="checkbox"><span>Carrots</span></label>
+            <label class="check"><input type="checkbox"><span>Bananas</span></label>
+            <label class="check"><input type="checkbox"><span>Berries</span></label>
+            <label class="check"><input type="checkbox"><span>Apples</span></label>
+            <label class="check"><input type="checkbox"><span>Avocados</span></label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Cupboard</h3>
+          <div class="checks">
+            <label class="check"><input type="checkbox"><span>Tinned tomatoes o passata</span></label>
+            <label class="check"><input type="checkbox"><span>Hummus</span></label>
+            <label class="check"><input type="checkbox"><span>Olive oil</span></label>
+            <label class="check"><input type="checkbox"><span>Mild spices</span></label>
+            <label class="check"><input type="checkbox"><span>Low/no-salt stock, optional</span></label>
+            <label class="check"><input type="checkbox"><span>Soy sauce</span></label>
+            <label class="check"><input type="checkbox"><span>Chilli flakes o hot sauce</span></label>
+            <label class="check"><input type="checkbox"><span>Parmesan</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="panel">
+        <h3>Prep facile</h3>
+        <div class="checks" data-scope="prep">
+          <label class="check"><input type="checkbox"><span>Roast extra sweet potato e broccoli il giorno 1.</span></label>
+          <label class="check"><input type="checkbox"><span>Cook extra rice per il pranzo del giorno 2.</span></label>
+          <label class="check"><input type="checkbox"><span>Make extra tomato/lentil sauce per leftovers.</span></label>
+          <label class="check"><input type="checkbox"><span>Tenere yogurt, banana, eggs e rice cakes come fallback.</span></label>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Pappa · bozza locale. Pensato per essere pubblicato come sito statico su Cloudflare Pages.
+    </footer>
+  </main>
+
+  <script>
+    const storageKey = "pappa-checks-v1";
+    const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    const checks = [...document.querySelectorAll('input[type="checkbox"]')];
+
+    checks.forEach((input, index) => {
+      const id = input.closest("[data-scope]")?.dataset.scope + ":" + index;
+      input.dataset.checkId = id;
+      input.checked = Boolean(saved[id]);
+      input.addEventListener("change", () => {
+        saved[id] = input.checked;
+        localStorage.setItem(storageKey, JSON.stringify(saved));
+      });
+    });
+
+    document.querySelector("[data-reset]").addEventListener("click", () => {
+      checks.forEach((input) => {
+        input.checked = false;
+        saved[input.dataset.checkId] = false;
+      });
+      localStorage.setItem(storageKey, JSON.stringify(saved));
+    });
+
+    document.querySelector("[data-print]").addEventListener("click", () => window.print());
+  </script>
+</body>
+</html>
