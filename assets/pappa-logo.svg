@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 240" role="img" aria-labelledby="title desc">
+  <title id="title">Pappa logo</title>
+  <desc id="desc">A simple bowl and spoon logo for the Pappa meal-planning app.</desc>
+  <rect width="720" height="240" rx="36" fill="#fff8ed"/>
+  <g transform="translate(56 42)">
+    <path d="M52 96c0 44 38 78 86 78s86-34 86-78H52Z" fill="#f47f5f"/>
+    <path d="M38 92h200c-8 24-25 45-47 58-16 9-34 14-53 14s-37-5-53-14c-22-13-39-34-47-58Z" fill="#ef6f55"/>
+    <path d="M69 92c10 27 36 46 69 46s59-19 69-46" fill="none" stroke="#8f3d2e" stroke-width="8" stroke-linecap="round"/>
+    <path d="M92 54c16-18 45-18 61 0 14 15 39 15 54 0" fill="none" stroke="#4f7f61" stroke-width="10" stroke-linecap="round"/>
+    <path d="M235 26c16 14 22 36 16 58l-26 94" fill="none" stroke="#263238" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="110" cy="106" r="7" fill="#fff8ed"/>
+    <circle cx="139" cy="112" r="7" fill="#fff8ed"/>
+    <circle cx="168" cy="105" r="7" fill="#fff8ed"/>
+  </g>
+  <text x="330" y="112" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="64" font-weight="800" fill="#263238">Pappa</text>
+  <text x="333" y="156" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" font-weight="500" fill="#4f7f61">meal plans for real family weeks</text>
+</svg>
