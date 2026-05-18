@@ -97,3 +97,13 @@ Options:
 
 - run npx wrangler login interactively on this host
 - provide a Cloudflare API token with the required Workers/Pages/D1 permissions via CLOUDFLARE_API_TOKEN
+
+If using a Global API Key only to bootstrap a narrower token, use:
+
+    export CF_EMAIL="you@example.com"
+    export CF_GLOBAL_API_KEY="..."
+    export CF_TOKEN_EXPIRES_ON="2026-05-25T00:00:00Z"
+    scripts/create-cloudflare-pappa-token.sh
+    export CLOUDFLARE_API_TOKEN="$(cat .cf-pappa-token)"
+
+The generated token is saved to .cf-pappa-token, which is ignored by git.
