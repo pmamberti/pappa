@@ -91,6 +91,13 @@
       justify-content: flex-end;
     }
 
+    .sync-status {
+      width: 100%;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
     .btn {
       border: 1px solid var(--line);
       background: var(--paper);
@@ -476,6 +483,10 @@
         width: 100%;
       }
 
+      .sync-status {
+        text-align: left;
+      }
+
       .btn {
         flex: 1;
       }
@@ -519,6 +530,7 @@
       <div class="actions">
         <button class="btn" type="button" data-reset>Reset spesa</button>
         <button class="btn primary" type="button" data-print>Stampa / salva PDF</button>
+        <span class="sync-status" data-sync-status>Sync D1 preview</span>
       </div>
     </nav>
 
@@ -721,7 +733,7 @@
       <div class="section-head">
         <div>
           <h2>Lista della spesa</h2>
-          <p>Le spunte restano salvate su questo dispositivo.</p>
+          <p>Le spunte si sincronizzano nella preview D1; se l'API non risponde, resta il fallback locale.</p>
         </div>
       </div>
       <div class="grocery" data-scope="grocery">
@@ -804,29 +816,106 @@
   </main>
 
   <script>
+    const planId = "plan_current_4_day";
+    const userId = "user_piero";
     const storageKey = "pappa-checks-v1";
     const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
     const checks = [...document.querySelectorAll('input[type="checkbox"]')];
+    const syncStatus = document.querySelector("[data-sync-status]");
+    let remoteItems = new Map();
+
+    function getCheckScope(input) {
+      return input.closest("[data-scope]")?.dataset.scope || "grocery";
+    }
+
+    function getCheckLabel(input) {
+      return input.nextElementSibling?.textContent?.trim() || "";
+    }
+
+    function getCheckKey(input, index) {
+      return getCheckScope(input) + ":" + getCheckLabel(input) + ":" + index;
+    }
+
+    function setSyncStatus(message) {
+      if (syncStatus) syncStatus.textContent = message;
+    }
+
+    async function loadRemoteChecks() {
+      const response = await fetch("/api/check-items?planId=" + encodeURIComponent(planId), {
+        headers: { accept: "application/json" },
+      });
+
+      if (!response.ok) throw new Error("check-items failed");
+
+      const data = await response.json();
+      remoteItems = new Map(
+        (data.items || []).map((item) => [item.scope + ":" + item.label, item])
+      );
+
+      checks.forEach((input) => {
+        const remote = remoteItems.get(getCheckScope(input) + ":" + getCheckLabel(input));
+        if (remote) {
+          input.dataset.remoteItemId = remote.id;
+          input.checked = Boolean(remote.checked);
+        }
+      });
+
+      setSyncStatus("D1 sync attivo");
+    }
+
+    async function saveRemoteCheck(input) {
+      const checkItemId = input.dataset.remoteItemId;
+      if (!checkItemId) return false;
+
+      const response = await fetch("/api/ticks", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          checkItemId,
+          userId,
+          checked: input.checked,
+        }),
+      });
+
+      if (!response.ok) throw new Error("tick save failed");
+
+      setSyncStatus("D1 sync salvato");
+      return true;
+    }
 
     checks.forEach((input, index) => {
-      const id = input.closest("[data-scope]")?.dataset.scope + ":" + index;
+      const id = getCheckKey(input, index);
       input.dataset.checkId = id;
       input.checked = Boolean(saved[id]);
-      input.addEventListener("change", () => {
+      input.addEventListener("change", async () => {
         saved[id] = input.checked;
         localStorage.setItem(storageKey, JSON.stringify(saved));
+        try {
+          await saveRemoteCheck(input);
+        } catch (error) {
+          setSyncStatus("Fallback locale: sync non riuscito");
+        }
       });
     });
 
-    document.querySelector("[data-reset]").addEventListener("click", () => {
-      checks.forEach((input) => {
+    document.querySelector("[data-reset]").addEventListener("click", async () => {
+      for (const input of checks) {
         input.checked = false;
         saved[input.dataset.checkId] = false;
-      });
+        try {
+          await saveRemoteCheck(input);
+        } catch (error) {
+          setSyncStatus("Fallback locale: reset non sincronizzato");
+        }
+      }
       localStorage.setItem(storageKey, JSON.stringify(saved));
     });
 
     document.querySelector("[data-print]").addEventListener("click", () => window.print());
+
+    loadRemoteChecks().catch(() => {
+      setSyncStatus("Fallback locale");
+    });
   </script>
 </body>
 </html>
