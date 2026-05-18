@@ -77,6 +77,19 @@ async function listRecipes(env) {
   });
 }
 
+async function listUsers(env, request) {
+  if (!env.DB) return json({ users: [], warning: "DB binding missing" });
+
+  const url = new URL(request.url);
+  const householdId = url.searchParams.get("householdId") || "household_piero_barbara";
+
+  const { results } = await env.DB.prepare(
+    "SELECT id, display_name, role FROM users WHERE household_id = ? ORDER BY role = 'owner' DESC, display_name"
+  ).bind(householdId).all();
+
+  return json({ users: results || [] });
+}
+
 async function listCheckItems(env, request) {
   if (!env.DB) return json({ items: [], warning: "DB binding missing" });
 
@@ -184,6 +197,7 @@ export async function onRequest(context) {
     if (route === "health" && request.method === "GET") return handleHealth(env);
     if (route === "plans" && request.method === "GET") return listPlans(env);
     if (route === "recipes" && request.method === "GET") return listRecipes(env);
+    if (route === "users" && request.method === "GET") return listUsers(env, request);
     if (route === "check-items" && request.method === "GET") return listCheckItems(env, request);
     if (route === "ticks" && request.method === "POST") return createTick(env, request);
     if (route === "feedback" && request.method === "POST") return createFeedback(env, request);

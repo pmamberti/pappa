@@ -98,6 +98,16 @@
       text-align: right;
     }
 
+    .user-select {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 8px;
+      min-height: 38px;
+      padding: 8px 10px;
+      box-shadow: 0 8px 18px rgba(54, 43, 26, 0.06);
+    }
+
     .btn {
       border: 1px solid var(--line);
       background: var(--paper);
@@ -528,6 +538,10 @@
         </div>
       </div>
       <div class="actions">
+        <select class="user-select" data-user-select aria-label="Utente">
+          <option value="user_piero">Piero</option>
+          <option value="user_barbara">Barbara</option>
+        </select>
         <button class="btn" type="button" data-reset>Reset spesa</button>
         <button class="btn primary" type="button" data-print>Stampa / salva PDF</button>
         <span class="sync-status" data-sync-status>Sync D1 preview</span>
@@ -817,11 +831,13 @@
 
   <script>
     const planId = "plan_current_4_day";
-    const userId = "user_piero";
+    const userStorageKey = "pappa-preview-user";
+    let userId = localStorage.getItem(userStorageKey) || "user_piero";
     const storageKey = "pappa-checks-v1";
     const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
     const checks = [...document.querySelectorAll('input[type="checkbox"]')];
     const syncStatus = document.querySelector("[data-sync-status]");
+    const userSelect = document.querySelector("[data-user-select]");
     let remoteItems = new Map();
 
     function getCheckScope(input) {
@@ -838,6 +854,35 @@
 
     function setSyncStatus(message) {
       if (syncStatus) syncStatus.textContent = message;
+    }
+
+    async function loadUsers() {
+      if (userSelect) userSelect.value = userId;
+
+      const response = await fetch("/api/users", {
+        headers: { accept: "application/json" },
+      });
+
+      if (!response.ok) throw new Error("users failed");
+
+      const data = await response.json();
+      if (!userSelect || !Array.isArray(data.users) || data.users.length === 0) return;
+
+      userSelect.innerHTML = "";
+      data.users.forEach((user) => {
+        const option = document.createElement("option");
+        option.value = user.id;
+        option.textContent = user.display_name;
+        userSelect.append(option);
+      });
+
+      if (data.users.some((user) => user.id === userId)) {
+        userSelect.value = userId;
+      } else {
+        userId = data.users[0].id;
+        userSelect.value = userId;
+        localStorage.setItem(userStorageKey, userId);
+      }
     }
 
     async function loadRemoteChecks() {
@@ -913,7 +958,16 @@
 
     document.querySelector("[data-print]").addEventListener("click", () => window.print());
 
-    loadRemoteChecks().catch(() => {
+    userSelect?.addEventListener("change", () => {
+      userId = userSelect.value;
+      localStorage.setItem(userStorageKey, userId);
+      setSyncStatus("Utente: " + userSelect.options[userSelect.selectedIndex].textContent);
+    });
+
+    Promise.all([
+      loadUsers().catch(() => null),
+      loadRemoteChecks(),
+    ]).catch(() => {
       setSyncStatus("Fallback locale");
     });
   </script>

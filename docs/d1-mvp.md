@@ -25,6 +25,7 @@ The first useful backend should support:
 - GET /api/health
 - GET /api/plans
 - GET /api/recipes
+- GET /api/users
 - GET /api/check-items?planId=...
 - POST /api/ticks
 - POST /api/feedback
