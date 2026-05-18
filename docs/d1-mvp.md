@@ -107,3 +107,19 @@ If using a Global API Key only to bootstrap a narrower token, use:
     export CLOUDFLARE_API_TOKEN="$(cat .cf-pappa-token)"
 
 The generated token is saved to .cf-pappa-token, which is ignored by git.
+
+## Remote D1
+
+Created remote D1 database:
+
+- Name: pappa
+- Region: EEUR
+- Database ID: cf73f2e7-6da7-4dc4-82b7-52bd33030e6c
+- Binding in wrangler.jsonc: DB
+
+Remote schema and seed were applied successfully.
+
+Verification:
+
+- recipes: 4
+- check_items: 15

@@ -1,0 +1,7 @@
+.git
+.env
+.env.*
+.cf-pappa-token
+.wrangler
+node_modules
+npm-debug.log*
