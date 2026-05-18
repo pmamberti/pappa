@@ -379,6 +379,59 @@
       gap: 12px;
     }
 
+    .recipes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .recipe-card {
+      padding: 16px;
+    }
+
+    .recipe-card h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .recipe-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0 14px;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #f7f1e6;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .recipe-card h4 {
+      margin: 14px 0 6px;
+      color: var(--green);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .recipe-card ul,
+    .recipe-card ol {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .recipe-card li + li {
+      margin-top: 4px;
+    }
+
     .small-list {
       display: grid;
       gap: 8px;
@@ -402,7 +455,8 @@
       }
 
       .days,
-      .grocery {
+      .grocery,
+      .recipes {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
@@ -441,7 +495,8 @@
 
       .summary,
       .days,
-      .grocery {
+      .grocery,
+      .recipes {
         grid-template-columns: 1fr;
       }
 
@@ -560,6 +615,104 @@
           <div class="slot"><b>🥗 Pranzo</b><p>Pasta salad tonno/pollo, oppure leftover rice bowl.</p></div>
           <div class="slot"><b>🥘 Cena</b><p>Stew di lenticchie, pollo e verdure, con pane.</p><div class="baby">Baby: texture densa, pezzi piccoli e morbidi, servire tiepido.</div></div>
           <div class="slot"><b>🍎 Snack</b><p>Mela tagliata safe o ammorbidita, banana, rice cakes + cream cheese o hummus.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Ricette rapide</h2>
+          <p>Versioni pratiche dei pasti del piano, con sale e condimenti adulti aggiunti alla fine.</p>
+        </div>
+      </div>
+      <div class="recipes">
+        <article class="panel recipe-card">
+          <h3>Salmone o pollo traybake</h3>
+          <div class="recipe-meta">
+            <span class="tag">Giorno 1 cena</span>
+            <span class="tag">35 min</span>
+            <span class="tag">leftover friendly</span>
+          </div>
+          <h4>Ingredienti</h4>
+          <ul>
+            <li>Salmone o chicken thighs/breast</li>
+            <li>Sweet potatoes a cubi, broccoli, olive oil</li>
+            <li>Adult toppings: lemon, chilli flakes, soy sauce, parmesan</li>
+          </ul>
+          <h4>Metodo</h4>
+          <ol>
+            <li>Roast sweet potatoes con poco olio a 200C per 18 minuti.</li>
+            <li>Aggiungi broccoli e salmone/pollo; continua finche' la proteina e' cotta.</li>
+            <li>Tieni una porzione plain per Gaia; condisci i piatti adulti alla fine.</li>
+            <li>Fai extra veg o sweet potato per pranzo del giorno dopo.</li>
+          </ol>
+        </article>
+
+        <article class="panel recipe-card">
+          <h3>Pasta pomodoro, lenticchie e spinaci</h3>
+          <div class="recipe-meta">
+            <span class="tag">Giorno 2 cena</span>
+            <span class="tag">25 min</span>
+            <span class="tag">fibra facile</span>
+          </div>
+          <h4>Ingredienti</h4>
+          <ul>
+            <li>Pasta, tinned tomatoes/passata, lentils</li>
+            <li>Spinach tritati, olive oil, mild spices</li>
+            <li>Adult toppings: parmesan, chilli, black pepper</li>
+          </ul>
+          <h4>Metodo</h4>
+          <ol>
+            <li>Scalda passata e lenticchie con un filo d'olio e spezie mild.</li>
+            <li>Cuoci la pasta morbida; tieni un po' di acqua di cottura.</li>
+            <li>Aggiungi spinaci tritati nella salsa e mescola con la pasta.</li>
+            <li>Servi baby plain; aggiungi parmigiano/chilli solo agli adulti.</li>
+          </ol>
+        </article>
+
+        <article class="panel recipe-card">
+          <h3>Rice bowl tacchino, courgette e peas</h3>
+          <div class="recipe-meta">
+            <span class="tag">Giorno 3 cena</span>
+            <span class="tag">30 min</span>
+            <span class="tag">high protein</span>
+          </div>
+          <h4>Ingredienti</h4>
+          <ul>
+            <li>Turkey/chicken mince, rice, courgette, peas</li>
+            <li>Tinned tomatoes o passata</li>
+            <li>Adult toppings: soy sauce, hot sauce, chilli flakes</li>
+          </ul>
+          <h4>Metodo</h4>
+          <ol>
+            <li>Cuoci riso o usa microwave rice.</li>
+            <li>Rosola il macinato, aggiungi courgette grattugiata e peas.</li>
+            <li>Aggiungi pomodoro e cuoci finche' tutto e' morbido.</li>
+            <li>Metti da parte una porzione baby prima di sale/spicy toppings.</li>
+          </ol>
+        </article>
+
+        <article class="panel recipe-card">
+          <h3>Stew pollo, lenticchie e verdure</h3>
+          <div class="recipe-meta">
+            <span class="tag">Giorno 4 cena</span>
+            <span class="tag">35 min</span>
+            <span class="tag">batchable</span>
+          </div>
+          <h4>Ingredienti</h4>
+          <ul>
+            <li>Chicken, lentils, carrots, spinach o broccoli</li>
+            <li>Tinned tomatoes/passata, low/no-salt stock optional</li>
+            <li>Bread per servire</li>
+          </ul>
+          <h4>Metodo</h4>
+          <ol>
+            <li>Cuoci chicken a pezzi piccoli con carrots e poco olio.</li>
+            <li>Aggiungi lentils, pomodoro e poco stock/acqua; simmer finche' denso.</li>
+            <li>Aggiungi spinach o broccoli ben cotti verso la fine.</li>
+            <li>Servi tiepido e morbido per Gaia; condisci gli adulti nel piatto.</li>
+          </ol>
         </article>
       </div>
     </section>
