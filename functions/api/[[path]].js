@@ -149,6 +149,16 @@ async function requireSession(env, request) {
   return { session, refreshedCookie: sessionCookie(parseCookies(request)[sessionCookieName], newExpiry, request) };
 }
 
+function jsonAuthed(data, auth, status = 200) {
+  return new Response(JSON.stringify(data, null, 2), {
+    status,
+    headers: {
+      ...jsonHeaders,
+      "set-cookie": auth.refreshedCookie,
+    },
+  });
+}
+
 function getRoute(request) {
   const url = new URL(request.url);
   return url.pathname.replace(/^\/api\/?/, "").replace(/\/$/, "") || "health";
@@ -169,43 +179,52 @@ async function handleHealth(env) {
   });
 }
 
-async function listPlans(env) {
+async function listPlans(env, request) {
   if (!env.DB) return json({ plans: [], warning: "DB binding missing" });
+
+  const auth = await requireSession(env, request);
+  if (auth.response) return auth.response;
 
   const { results } = await env.DB.prepare(
     "SELECT id, title, start_date, end_date, focus, status, version, created_at FROM plans ORDER BY created_at DESC LIMIT 20"
   ).all();
 
-  return json({ plans: results || [] });
+  return jsonAuthed({ plans: results || [] }, auth);
 }
 
-async function listRecipes(env) {
+async function listRecipes(env, request) {
   if (!env.DB) return json({ recipes: [], warning: "DB binding missing" });
+
+  const auth = await requireSession(env, request);
+  if (auth.response) return auth.response;
 
   const { results } = await env.DB.prepare(
     "SELECT id, title, source_url, summary, tags_json, effort, family_notes, created_at, updated_at FROM recipes ORDER BY updated_at DESC LIMIT 50"
   ).all();
 
-  return json({
+  return jsonAuthed({
     recipes: (results || []).map((recipe) => ({
       ...recipe,
       tags: JSON.parse(recipe.tags_json || "[]"),
       tags_json: undefined,
     })),
-  });
+  }, auth);
 }
 
 async function listUsers(env, request) {
   if (!env.DB) return json({ users: [], warning: "DB binding missing" });
 
+  const auth = await requireSession(env, request);
+  if (auth.response) return auth.response;
+
   const url = new URL(request.url);
-  const householdId = url.searchParams.get("householdId") || "household_piero_barbara";
+  const householdId = url.searchParams.get("householdId") || auth.session.household_id;
 
   const { results } = await env.DB.prepare(
     "SELECT id, display_name, role FROM users WHERE household_id = ? ORDER BY role = 'owner' DESC, display_name"
   ).bind(householdId).all();
 
-  return json({ users: results || [] });
+  return jsonAuthed({ users: results || [] }, auth);
 }
 
 async function handleLogin(env, request) {
@@ -377,6 +396,9 @@ async function handleLogout(env, request) {
 async function listCheckItems(env, request) {
   if (!env.DB) return json({ items: [], warning: "DB binding missing" });
 
+  const auth = await requireSession(env, request);
+  if (auth.response) return auth.response;
+
   const url = new URL(request.url);
   const planId = url.searchParams.get("planId");
   if (!planId) return badRequest("planId is required");
@@ -398,12 +420,12 @@ async function listCheckItems(env, request) {
 
   const { results } = await env.DB.prepare(sql).bind(planId).all();
 
-  return json({
+  return jsonAuthed({
     items: (results || []).map((item) => ({
       ...item,
       checked: Boolean(item.checked),
     })),
-  });
+  }, auth);
 }
 
 async function createTick(env, request) {
@@ -498,8 +520,8 @@ export async function onRequest(context) {
     if (route === "login" && (request.method === "GET" || request.method === "POST")) return handleLogin(env, request);
     if (route === "me" && request.method === "GET") return handleMe(env, request);
     if (route === "logout" && request.method === "POST") return handleLogout(env, request);
-    if (route === "plans" && request.method === "GET") return listPlans(env);
-    if (route === "recipes" && request.method === "GET") return listRecipes(env);
+    if (route === "plans" && request.method === "GET") return listPlans(env, request);
+    if (route === "recipes" && request.method === "GET") return listRecipes(env, request);
     if (route === "users" && request.method === "GET") return listUsers(env, request);
     if (route === "check-items" && request.method === "GET") return listCheckItems(env, request);
     if (route === "ticks" && request.method === "POST") return createTick(env, request);
