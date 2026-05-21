@@ -835,6 +835,7 @@
     const checks = [...document.querySelectorAll('input[type="checkbox"]')];
     const syncStatus = document.querySelector("[data-sync-status]");
     const userSelect = document.querySelector("[data-user-select]");
+    const resetButton = document.querySelector("[data-reset]");
     let remoteItems = new Map();
     let currentUser = null;
 
@@ -931,17 +932,28 @@
       });
     });
 
-    document.querySelector("[data-reset]").addEventListener("click", async () => {
-      for (const input of checks) {
+    resetButton.addEventListener("click", async () => {
+      resetButton.disabled = true;
+      setSyncStatus("Reset in corso...");
+
+      const resetSaves = checks.map(async (input) => {
         input.checked = false;
         saved[input.dataset.checkId] = false;
-        try {
-          await saveRemoteCheck(input);
-        } catch (error) {
-          setSyncStatus("Fallback locale: reset non sincronizzato");
-        }
-      }
+        return saveRemoteCheck(input);
+      });
+
       localStorage.setItem(storageKey, JSON.stringify(saved));
+
+      const results = await Promise.allSettled(resetSaves);
+      const failed = results.some((result) => result.status === "rejected");
+      if (failed) {
+        setSyncStatus("Fallback locale: reset non sincronizzato");
+      } else {
+        setSyncStatus("D1 sync reset salvato");
+        await loadRemoteChecks();
+      }
+
+      resetButton.disabled = false;
     });
 
     document.querySelector("[data-print]").addEventListener("click", () => window.print());

@@ -410,7 +410,7 @@ async function listCheckItems(env, request) {
     "    SELECT te.checked",
     "    FROM tick_events te",
     "    WHERE te.check_item_id = ci.id",
-    "    ORDER BY te.created_at DESC",
+    "    ORDER BY te.created_at DESC, te.rowid DESC",
     "    LIMIT 1",
     "  ) AS checked",
     "FROM check_items ci",
