@@ -45,35 +45,6 @@
       padding: 24px 0 48px;
     }
 
-    .auth-gate {
-      width: min(440px, calc(100% - 32px));
-      min-height: 100vh;
-      margin: 0 auto;
-      display: grid;
-      place-items: center;
-    }
-
-    .auth-panel {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--paper);
-      box-shadow: var(--shadow);
-      padding: 22px;
-    }
-
-    .auth-panel h1 {
-      margin: 0 0 10px;
-      font-size: 30px;
-      letter-spacing: 0;
-    }
-
-    .auth-panel p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.45;
-    }
-
     .topbar {
       display: flex;
       align-items: center;
@@ -557,14 +528,7 @@
   </style>
 </head>
 <body>
-  <div class="auth-gate" data-auth-gate>
-    <section class="auth-panel">
-      <h1>Pappa</h1>
-      <p>Apri il link invito su questo dispositivo per accedere al piano condiviso.</p>
-    </section>
-  </div>
-
-  <main class="shell" data-app-shell hidden>
+  <main class="shell">
     <nav class="topbar" aria-label="Azioni">
       <div class="brand">
         <div class="mark" aria-hidden="true">🍽️</div>
@@ -871,8 +835,6 @@
     const checks = [...document.querySelectorAll('input[type="checkbox"]')];
     const syncStatus = document.querySelector("[data-sync-status]");
     const userSelect = document.querySelector("[data-user-select]");
-    const authGate = document.querySelector("[data-auth-gate]");
-    const appShell = document.querySelector("[data-app-shell]");
     let remoteItems = new Map();
     let currentUser = null;
 
@@ -910,8 +872,6 @@
         userSelect.append(option);
       }
 
-      authGate.hidden = true;
-      appShell.hidden = false;
     }
 
     async function loadRemoteChecks() {
@@ -989,8 +949,14 @@
     loadSession()
       .then(loadRemoteChecks)
       .catch(() => {
-        authGate.hidden = false;
-        appShell.hidden = true;
+        document.body.innerHTML = [
+          '<main class="shell">',
+          '<section class="panel">',
+          '<h1>Pappa</h1>',
+          '<p>Apri il link invito su questo dispositivo per accedere al piano condiviso.</p>',
+          '</section>',
+          '</main>',
+        ].join("");
       });
   </script>
 </body>
