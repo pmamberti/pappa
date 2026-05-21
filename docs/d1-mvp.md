@@ -50,8 +50,12 @@ Do not start with heavy auth.
 Recommended first version:
 
 - invite token creates a session cookie
+- invite links last 7 days and allow up to 3 uses
+- device sessions last 180 days with sliding renewal
+- sessions and invite links can be manually revoked
 - users belong to one household
-- API writes include authenticated user_id
+- API writes derive authenticated user_id from the session cookie
+- browser clients do not send or choose userId for writes once auth is enabled
 
 Later:
 
@@ -90,24 +94,14 @@ Check function syntax:
 
 The current static index.html is intentionally left intact while backend shape is explored.
 
-## Current Blocker
+## Current Status
 
-Wrangler must be authenticated before creating the real D1 database or applying schema remotely.
+Wrangler/Cloudflare setup is complete enough for the current preview branch.
 
-Options:
-
-- run npx wrangler login interactively on this host
-- provide a Cloudflare API token with the required Workers/Pages/D1 permissions via CLOUDFLARE_API_TOKEN
-
-If using a Global API Key only to bootstrap a narrower token, use:
-
-    export CF_EMAIL="you@example.com"
-    export CF_GLOBAL_API_KEY="..."
-    export CF_TOKEN_EXPIRES_ON="2026-05-25T00:00:00Z"
-    scripts/create-cloudflare-pappa-token.sh
-    export CLOUDFLARE_API_TOKEN="$(cat .cf-pappa-token)"
-
-The generated token is saved to .cf-pappa-token, which is ignored by git.
+- Remote D1 database exists.
+- Remote schema and seed have been applied.
+- Preview branch `pappa-v2-d1` is deployed at https://pappa-v2-d1.pappa.pages.dev.
+- Main branch and `pappa.mamberti.it` are intentionally untouched.
 
 ## Remote D1
 
@@ -123,4 +117,31 @@ Remote schema and seed were applied successfully.
 Verification:
 
 - recipes: 4
-- check_items: 15
+- check_items: 44
+- `POST /api/ticks` works for preview users
+- `GET /api/users` returns Piero and Barbara
+
+## Next Auth Slice
+
+Implement the auth MVP before treating the preview as a family app:
+
+1. Add `invite_tokens` to schema.sql.
+2. Add login/token validation endpoint: `GET /api/login?token=...`.
+3. Set an HttpOnly Secure SameSite=Lax session cookie.
+4. Add `GET /api/me`.
+5. Require authenticated sessions for tick and feedback writes.
+6. Remove browser-supplied `userId` from write requests.
+7. Add manual revocation for invite links and sessions.
+
+Generate invite SQL:
+
+    npm run invite:sql -- --user=user_piero
+
+Apply the auth migration to the existing remote D1 database before deploying the auth code:
+
+    npx wrangler d1 execute pappa --remote --file=migrations/0001-auth.sql
+
+Revoke manually:
+
+    UPDATE invite_tokens SET revoked_at = CURRENT_TIMESTAMP WHERE id = 'invite_...';
+    UPDATE sessions SET revoked_at = CURRENT_TIMESTAMP WHERE id = 'session_...';

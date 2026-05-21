@@ -19,7 +19,21 @@ CREATE TABLE IF NOT EXISTS sessions (
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   token_hash TEXT NOT NULL UNIQUE,
   expires_at TEXT NOT NULL,
-  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_seen_at TEXT,
+  revoked_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS invite_tokens (
+  id TEXT PRIMARY KEY,
+  household_id TEXT NOT NULL REFERENCES households(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL UNIQUE,
+  max_uses INTEGER NOT NULL DEFAULT 3,
+  use_count INTEGER NOT NULL DEFAULT 0,
+  expires_at TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  revoked_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS plans (
@@ -92,6 +106,9 @@ CREATE TABLE IF NOT EXISTS feedback (
 
 CREATE INDEX IF NOT EXISTS idx_users_household ON users(household_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON sessions(token_hash);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id, expires_at);
+CREATE INDEX IF NOT EXISTS idx_invite_tokens_hash ON invite_tokens(token_hash);
+CREATE INDEX IF NOT EXISTS idx_invite_tokens_user ON invite_tokens(user_id, expires_at);
 CREATE INDEX IF NOT EXISTS idx_plans_household_created ON plans(household_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_recipes_household_title ON recipes(household_id, title);
 CREATE INDEX IF NOT EXISTS idx_plan_meals_plan_day ON plan_meals(plan_id, day_index, slot);

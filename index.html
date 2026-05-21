@@ -538,9 +538,8 @@
         </div>
       </div>
       <div class="actions">
-        <select class="user-select" data-user-select aria-label="Utente">
-          <option value="user_piero">Piero</option>
-          <option value="user_barbara">Barbara</option>
+        <select class="user-select" data-user-select aria-label="Sessione" disabled>
+          <option>Sessione non attiva</option>
         </select>
         <button class="btn" type="button" data-reset>Reset spesa</button>
         <button class="btn primary" type="button" data-print>Stampa / salva PDF</button>
@@ -831,14 +830,13 @@
 
   <script>
     const planId = "plan_current_4_day";
-    const userStorageKey = "pappa-preview-user";
-    let userId = localStorage.getItem(userStorageKey) || "user_piero";
     const storageKey = "pappa-checks-v1";
     const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
     const checks = [...document.querySelectorAll('input[type="checkbox"]')];
     const syncStatus = document.querySelector("[data-sync-status]");
     const userSelect = document.querySelector("[data-user-select]");
     let remoteItems = new Map();
+    let currentUser = null;
 
     function getCheckScope(input) {
       return input.closest("[data-scope]")?.dataset.scope || "grocery";
@@ -856,32 +854,22 @@
       if (syncStatus) syncStatus.textContent = message;
     }
 
-    async function loadUsers() {
-      if (userSelect) userSelect.value = userId;
-
-      const response = await fetch("/api/users", {
+    async function loadSession() {
+      const response = await fetch("/api/me", {
         headers: { accept: "application/json" },
       });
 
-      if (!response.ok) throw new Error("users failed");
+      if (!response.ok) throw new Error("session missing");
 
       const data = await response.json();
-      if (!userSelect || !Array.isArray(data.users) || data.users.length === 0) return;
+      currentUser = data.user || null;
 
-      userSelect.innerHTML = "";
-      data.users.forEach((user) => {
+      if (userSelect && currentUser) {
+        userSelect.innerHTML = "";
         const option = document.createElement("option");
-        option.value = user.id;
-        option.textContent = user.display_name;
+        option.value = currentUser.id;
+        option.textContent = currentUser.displayName;
         userSelect.append(option);
-      });
-
-      if (data.users.some((user) => user.id === userId)) {
-        userSelect.value = userId;
-      } else {
-        userId = data.users[0].id;
-        userSelect.value = userId;
-        localStorage.setItem(userStorageKey, userId);
       }
     }
 
@@ -917,7 +905,6 @@
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           checkItemId,
-          userId,
           checked: input.checked,
         }),
       });
@@ -958,17 +945,11 @@
 
     document.querySelector("[data-print]").addEventListener("click", () => window.print());
 
-    userSelect?.addEventListener("change", () => {
-      userId = userSelect.value;
-      localStorage.setItem(userStorageKey, userId);
-      setSyncStatus("Utente: " + userSelect.options[userSelect.selectedIndex].textContent);
-    });
-
     Promise.all([
-      loadUsers().catch(() => null),
+      loadSession(),
       loadRemoteChecks(),
     ]).catch(() => {
-      setSyncStatus("Fallback locale");
+      setSyncStatus("Fallback locale: apri con link invito per sync");
     });
   </script>
 </body>

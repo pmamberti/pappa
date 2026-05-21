@@ -34,6 +34,10 @@ Check Pages Function syntax:
 
     npm run check:functions
 
+Generate SQL for a 7-day invite link:
+
+    npm run invite:sql -- --user=user_piero
+
 Run locally with D1 binding:
 
     npm run dev
